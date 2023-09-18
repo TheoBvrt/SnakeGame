@@ -19,9 +19,10 @@ public class Main extends Application {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
 
         Pane root = new Pane(canvas);
-        primaryStage.setScene(new Scene(root));
+        Scene scene =  new Scene(root);
+        primaryStage.setScene(scene);
 
-        SnakeGame snakeGame = new SnakeGame(10, 500, graphicsContext);
+        SnakeGame snakeGame = new SnakeGame(10, 500, graphicsContext, scene);
         Thread gameThread = new Thread(snakeGame::Run);
         gameThread.start();
         primaryStage.show();

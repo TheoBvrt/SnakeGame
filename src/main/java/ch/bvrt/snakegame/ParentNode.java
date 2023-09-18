@@ -7,7 +7,7 @@ public class ParentNode {
     int lastY;
     int lastX;
 
-    int lastDir;
+    int dir;
 
     public ParentNode(int posY, int posX) {
         this.posY = posY;
