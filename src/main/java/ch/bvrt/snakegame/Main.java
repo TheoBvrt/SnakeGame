@@ -1,14 +1,11 @@
 package ch.bvrt.snakegame;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class Main extends Application {
     @Override
@@ -23,8 +20,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
 
         SnakeGame snakeGame = new SnakeGame(10, 500, graphicsContext, scene);
-        Thread gameThread = new Thread(snakeGame::Run);
-        gameThread.start();
+        snakeGame.Run();
         primaryStage.show();
     }
 

@@ -8,6 +8,7 @@ public class ParentNode {
     int lastX;
 
     int dir;
+    int lastDir;
 
     public ParentNode(int posY, int posX) {
         this.posY = posY;

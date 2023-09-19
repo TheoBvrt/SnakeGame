@@ -3,7 +3,6 @@ package ch.bvrt.snakegame;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,9 +27,9 @@ public class SnakeGame {
         ParentNode parent = new ParentNode(20, 20);
 
         System.out.println("Welcome to SnakeGame !");
-        System.out.println(tabSize);
         gameTab[10][25] = 5;
         parent.dir = 1;
+        parent.lastDir = parent.dir;
         sc.setOnKeyPressed(keyEvent -> {
             KeyCode keyCode = keyEvent.getCode();
             switch (keyCode) {
@@ -47,83 +46,64 @@ public class SnakeGame {
                     parent.dir = 4;
             }
         });
-
+        FrameUpdater frameUpdater = new FrameUpdater(gameTab, gc, spriteSize);
+        frameUpdater.start();
         Thread thread = new Thread(() -> GameLoop(gameTab, parent));
         thread.start();
     }
 
     private void GameLoop(int [][] gameTab, ParentNode parent) {
         List<Node> nodes = new ArrayList<>();
-        int[] infos;
+        int[] infos = new int[0];
 
-        Node node = new Node(gameTab);
-        Node node1 = new Node(gameTab);
-        nodes.add(node);
-        nodes.add(node1);
-
+        for (int i = 0; i < 3; i++) {
+            Node node = new Node(gameTab);
+            nodes.add(node);
+        }
         while (true) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            }
-            if (parent.dir == 1) {
+            if (parent.dir == 1 && parent.lastDir != 3) {
                 parent.lastX = parent.posX;
                 parent.lastY = parent.posY;
                 infos = Movement.Forward(gameTab, parent.posY, parent.posX);
+                parent.lastDir = 1;
                 parent.posY = infos[0];
-
-                if (infos[1] == 1) {
-                    Node newNode = new Node(gameTab);
-                    nodes.add(newNode);
-                    FruitGenerator(gameTab);
-                }
-                moveChild(nodes, parent);
             }
-
-            if (parent.dir == 2) {
+            if (parent.dir == 2 && parent.lastDir != 4) {
                 parent.lastX = parent.posX;
                 parent.lastY = parent.posY;
                 infos = Movement.Right(gameTab, parent.posY, parent.posX);
+                parent.lastDir = 2;
                 parent.posX = infos[0];
-
-                if (infos[1] == 1) {
-                    Node newNode = new Node(gameTab);
-                    nodes.add(newNode);
-                    FruitGenerator(gameTab);
-                }
-                moveChild(nodes, parent);
             }
-
-            if (parent.dir == 3) {
+            if (parent.dir == 3 && parent.lastDir != 1) {
                 parent.lastX = parent.posX;
                 parent.lastY = parent.posY;
                 infos = Movement.Backward(gameTab, parent.posY, parent.posX);
+                parent.lastDir = 3;
                 parent.posY = infos[0];
-
-                if (infos[1] == 1) {
-                    Node newNode = new Node(gameTab);
-                    nodes.add(newNode);
-                    FruitGenerator(gameTab);
-                }
-                moveChild(nodes, parent);
             }
-
-            if (parent.dir == 4) {
+            if (parent.dir == 4 && parent.lastDir != 2) {
                 parent.lastX = parent.posX;
                 parent.lastY = parent.posY;
                 infos = Movement.Left(gameTab, parent.posY, parent.posX);
+                parent.lastDir = 4;
                 parent.posX = infos[0];
-                if (infos[1] == 1) {
-                    Node newNode = new Node(gameTab);
-                    nodes.add(newNode);
-                    FruitGenerator(gameTab);
-                }
-                moveChild(nodes, parent);
             }
-
-            System.out.println("Debug");
-            frameUpdate(gameTab);
+            if (infos[2] == 1) {
+                System.exit(0);
+            }
+            if (infos[1] == 1) {
+                Node newNode = new Node(gameTab);
+                nodes.add(newNode);
+                FruitGenerator(gameTab);
+            }
+            moveChild(nodes, parent);
+            System.out.println("Last move : " + parent.lastDir);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
         }
     }
 
@@ -135,16 +115,6 @@ public class SnakeGame {
                 childList.get(i).childFollow(childList.get(i - 1));
             }
         }
-    }
-
-    private void printMatrix(int[][] gameTab) {
-        for (int i = 0; i < tabSize; i++) {
-            System.out.println(Arrays.toString(gameTab[i]));
-        }
-    }
-
-    private boolean gameIsOver(int[][] gameTab) {
-        return (false);
     }
 
     private void FruitGenerator(int[][] gameTab) {
@@ -159,46 +129,16 @@ public class SnakeGame {
         gameTab[posY][posX] = 5;
     }
 
-
     private int[][] TabFill () {
         int [][] tabToReturn = new int[tabSize][tabSize];
         for (int i = 0; i < tabSize; i++) {
             for (int j = 0; j < tabSize; j++) {
-                tabToReturn[i][j] = 0;
+                if (i == 0 || j == 0 || i == tabSize - 1 || j == tabSize - 1)
+                    tabToReturn[i][j] = 10;
+                else
+                    tabToReturn[i][j] = 0;
             }
         }
         return  tabToReturn;
-    }
-
-    private void frameUpdate(int[][] gameTab) {
-        int frameY = 0;
-        int frameX = 0;
-
-        gc.setFill(Color.RED);
-        for (int[] ints : gameTab) {
-            for (int gameTabY = 0; gameTabY < gameTab.length; gameTabY++) {
-                if (ints[gameTabY] == 0) {
-                    DrawCell(frameY, frameX, Color.BLACK);
-                } else if (ints[gameTabY] == 1){
-                    DrawCell(frameY, frameX, Color.RED);
-                } else if (ints[gameTabY] == 2) {
-                    DrawCell(frameY, frameX, Color.GREEN);
-                } else if (ints[gameTabY] == 5) {
-                    DrawCell(frameY, frameX, Color.YELLOW);
-                }
-                frameX += spriteSize;
-            }
-            frameY += spriteSize;
-            frameX = 0;
-        }
-    }
-
-    private void DrawCell(int frameY, int frameX, Color color) {
-        for (int y = 0; y < spriteSize; y++) {
-            for (int x = 0; x < spriteSize; x++) {
-                gc.setFill(color);
-                gc.fillRect(x + frameX, y + frameY, 1, 1);
-            }
-        }
     }
 }
