@@ -30,22 +30,7 @@ public class SnakeGame {
         gameTab[10][25] = 5;
         parent.dir = 1;
         parent.lastDir = parent.dir;
-        sc.setOnKeyPressed(keyEvent -> {
-            KeyCode keyCode = keyEvent.getCode();
-            switch (keyCode) {
-                case W :
-                    parent.dir = 1;
-                    break;
-                case D:
-                    parent.dir = 2;
-                    break;
-                case S:
-                    parent.dir = 3;
-                    break;
-                case A:
-                    parent.dir = 4;
-            }
-        });
+        ReadInput(parent );
         FrameUpdater frameUpdater = new FrameUpdater(gameTab, gc, spriteSize);
         frameUpdater.start();
         Thread thread = new Thread(() -> GameLoop(gameTab, parent));
@@ -105,6 +90,25 @@ public class SnakeGame {
                 System.out.println(e);
             }
         }
+    }
+
+    private void ReadInput (ParentNode parentNode) {
+        sc.setOnKeyPressed(keyEvent -> {
+            KeyCode keyCode = keyEvent.getCode();
+            switch (keyCode) {
+                case W :
+                    parentNode.dir = 1;
+                    break;
+                case D:
+                    parentNode.dir = 2;
+                    break;
+                case S:
+                    parentNode.dir = 3;
+                    break;
+                case A:
+                    parentNode.dir = 4;
+            }
+        });
     }
 
     private void moveChild(List<Node> childList, ParentNode parent) {
